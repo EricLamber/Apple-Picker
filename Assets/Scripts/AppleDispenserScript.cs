@@ -5,7 +5,7 @@ using UnityEngine;
 public class AppleDispenserScript : MonoBehaviour
 {
     [SerializeField] GameObject apple;
-    [SerializeField] GameObject ApplePoint;
+    [SerializeField] Transform ApplePoint;
     [SerializeField] int AppleThrowCD = 2;
     [SerializeField] float MoveSpeeed = 1;
 
@@ -14,17 +14,20 @@ public class AppleDispenserScript : MonoBehaviour
     float LeftBorder;
     float RightBorder;
 
+    public Queue<GameObject> apples = new Queue<GameObject>();
+
     void Start()
     {
         cam = Camera.main;
         LeftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, cam.nearClipPlane)).x;
         RightBorder = cam.ViewportToWorldPoint(new Vector3(1, 0, cam.nearClipPlane)).x;
+        apples.Enqueue(Instantiate(apple, ApplePoint.position, ApplePoint.rotation) as GameObject);
         StartCoroutine(AppleThrow());
     }
 
     void Update()
     {
-        MoveSpeeed = (transform.position.x <= LeftBorder) || (transform.position.x >= RightBorder) ? -MoveSpeeed : MoveSpeeed;
+        MoveSpeeed = (transform.position.x == Mathf.Clamp(transform.position.x, LeftBorder, RightBorder))? MoveSpeeed : -MoveSpeeed;
         transform.Translate(Vector2.up * MoveSpeeed);
     }
 
@@ -33,7 +36,15 @@ public class AppleDispenserScript : MonoBehaviour
     {
         while (true)
         {
-            Instantiate(apple, ApplePoint.transform.position, ApplePoint.transform.rotation);
+            if (apples.Count == 0)
+                apples.Enqueue(Instantiate(apple, ApplePoint.position, ApplePoint.rotation) as GameObject);
+            else
+            {
+                var a = apples.Dequeue();
+                a.transform.SetPositionAndRotation(ApplePoint.position, ApplePoint.rotation);
+                a.SetActive(true);
+            }
+
             yield return new WaitForSeconds(AppleThrowCD);
         }
     }

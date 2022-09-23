@@ -1,17 +1,12 @@
 using UnityEngine;
 
-public class PlayerControl : MonoBehaviour
+public class VoidScript : MonoBehaviour
 {
-    Camera cam;
     AppleDispenserScript apple;
 
-    void Start() 
-    { 
-        cam = Camera.main;
+    void Start() =>
         apple = FindObjectOfType<AppleDispenserScript>();
-    }
-
-    void Update() => transform.position = new Vector2(cam.ScreenToWorldPoint(Input.mousePosition).x, transform.position.y);
+    
 
     void OnTriggerEnter2D(Collider2D other)
     {
